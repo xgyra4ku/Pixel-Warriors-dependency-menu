@@ -7,10 +7,11 @@
 #include <cmath>
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window);
-extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus);
-void SettingLogic(sf::RenderWindow& window, int& menuStatus);
+extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap);
+void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap);
 float percentage(float percent, unsigned int num);
 unsigned int textSizeOptimization(sf::Vector2u currentSize, float textSize);
+bool collisionMouse(const sf::Vector2f& mousePosition, sf::Vector2f shapeSize, sf::Vector2f shapePosition);
 
 
 #endif // MOD_MENU_H
