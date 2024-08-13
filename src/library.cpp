@@ -366,7 +366,7 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
             }
         }
 
-        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(1100, 310))) {
+        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(85.94f, windowSize.x), percentage(38.75f, windowSize.y)))) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
 
                 if (displaySolutionIndex >= 16) {
@@ -379,7 +379,7 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
             }
         }
 
-        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(848, 310))) {
+        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(66.25f, windowSize.x), percentage(38.75f, windowSize.y)))) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
 
                 if (displaySolutionIndex <= 0) {
