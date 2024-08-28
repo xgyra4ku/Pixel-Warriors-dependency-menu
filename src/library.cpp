@@ -430,9 +430,9 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
 
     }
 
-    for (int i = 0; i < 5; i++) {
-        window.draw(settings[i]);
-        settings[i].setFillColor(colorNormal);
+    for (auto & setting : settings) {
+        window.draw(setting);
+        setting.setFillColor(colorNormal);
     }
     window.draw(GameNameText);
 }
