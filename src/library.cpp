@@ -1,5 +1,7 @@
 #include "../include/library.h"
-
+#include <iostream>
+#include <vector>
+#include <cmath>
 float referenceWidth = 1280.0f;
 float referenceHeight = 800.0f;
 float referenceTextSize = 30.0f;
@@ -23,6 +25,9 @@ sf::Text CreateWorldText;
 sf::Text SettingsText;
 sf::Text ExitText;
 sf::Text ModNameText;
+sf::Text versionApp;
+
+
 sf::Vector2f mousePosition;
 sf::Color colorHover(34, 127, 79); // Цвет при наведении
 sf::Color colorNormal(255, 255, 255); // Цвет по умолчанию
@@ -59,6 +64,7 @@ int displaySolution[17][2] = {
     {4096, 2160},   // 4096x2160 (DCI 4K)
 };
 
+sf::Text TextCreateWorld[10];
 
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
@@ -102,10 +108,10 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     GameNameText.setFillColor(sf::Color(204, 155, 248));
     GameNameText.setPosition(percentage(54.69, windowSize.x), 50);
 
-    for (int i = 0; i < 5; i++) {
-        settings[i].setFont(font);
-        settings[i].setCharacterSize(textSizeOptimization(windowSize, 30.0f));
-        settings[i].setFillColor(sf::Color::White);
+    for (auto & setting : settings) {
+        setting.setFont(font);
+        setting.setCharacterSize(textSizeOptimization(windowSize, 30.0f));
+        setting.setFillColor(sf::Color::White);
     }
 
     settings[0].setString("Exit");
@@ -215,13 +221,36 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     triangle[1].setPoint(2, sf::Vector2f(percentage(85.94f, windowSize.x), percentage(38.75f, windowSize.y)));
     triangle[1].setFillColor(sf::Color(10, 10, 10));
 
+    versionApp.setFont(font);
+    versionApp.setCharacterSize(textSizeOptimization(windowSize, 15.0f));
+    versionApp.setFillColor(sf::Color::White);
+    versionApp.setString("version-0.22-ALPHA--menu-version-0.5");
+    versionApp.setPosition(0, percentage800(780, windowSize.y));
+
+
+    for (auto& el : TextCreateWorld) {
+        el.setFont(font);
+        el.setCharacterSize(textSizeOptimization(windowSize, 30.0f));
+        el.setFillColor(sf::Color::White);
+    }
+    TextCreateWorld[0].setCharacterSize(textSizeOptimization(windowSize, 50.0f));
+    TextCreateWorld[0].setString("\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|");
+    TextCreateWorld[0].setPosition(percentage1280(636, windowSize.x), percentage800(-58.5, windowSize.y));
+
+    TextCreateWorld[1].setString("Saves");
+    TextCreateWorld[1].setPosition(percentage1280(212, windowSize.x), percentage800(10, windowSize.y));
+
+    TextCreateWorld[2].setString("Create World");
+    TextCreateWorld[2].setPosition(percentage1280(836, windowSize.x), percentage800(10, windowSize.y));
+
+
 
     std::cout << "INFO: menu initialized is successful" << std::endl;
 }
 
 extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     window.clear(sf::Color(43, 63, 114));
-    mousePosition = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+    mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
     //std::cout << mousePosition.x << " " << mousePosition.y << std::endl;
     if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
         exitMenu = true;
@@ -231,7 +260,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         if (CreateWorldText.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
             CreateWorldText.setFillColor(colorHover);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                menuStatus = -1;
+                menuStatus = 2;
         }
         else {
             CreateWorldText.setFillColor(colorNormal);
@@ -275,7 +304,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         window.draw(ExitText);
     }
     else if (menuStatus == 2) {
-
+        CreateWorld(window, menuStatus);
     }
     else if (menuStatus == 3) {
         SettingLogic(window, menuStatus, settingsMap);
@@ -284,7 +313,14 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
 
     }
 
+    window.draw(versionApp);
+
     buttonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+}
+void CreateWorld(sf::RenderWindow& window, int& menuStatus) {
+    for (const auto& el : TextCreateWorld) {
+        window.draw(el);
+    }
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     if (!settingMapCopy) {
@@ -438,18 +474,28 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
 }
 
 
-float percentage(float percent, unsigned int num) {
-    return (percent / 100) * num;
+float percentage(const float percent, const unsigned int num) {
+    return (percent / 100) * static_cast<float>(num);
+}
+float percentage1280(const float percent, const unsigned int num) {
+    const float i = (percent / 1280) * 100;
+    return percentage(i, num);
+}
+float percentage800(const float percent, const unsigned int num) {
+    const float i = (percent / 800) * 100;
+    return percentage(i, num);
 }
 
 unsigned int textSizeOptimization(sf::Vector2u currentSize, float textSize) {
-    return int(textSize * (std::sqrt(std::pow((currentSize.x / 1280.0f), 2) + std::pow((currentSize.y / 800.0f), 2)) / std::sqrt(2)));
+    return static_cast<int>(textSize * (std::sqrt(
+                                            std::pow((static_cast<float>(currentSize.x) / 1280.0f), 2) + std::pow(
+                                                (static_cast<float>(currentSize.y) / 800.0f), 2)) / std::sqrt(2)));
 }
 bool collisionMouse(const sf::Vector2f& mousePosition, const sf::Vector2f shapeSize, const sf::Vector2f shapePosition) {
-    if (float(mousePosition.x) >= shapePosition.x &&
-        float(mousePosition.x) <= shapePosition.x + shapeSize.x &&
-        float(mousePosition.y) >= shapePosition.y &&
-        float(mousePosition.y) <= shapePosition.y + shapeSize.y) {
+    if (static_cast<float>(mousePosition.x) >= shapePosition.x &&
+        static_cast<float>(mousePosition.x) <= shapePosition.x + shapeSize.x &&
+        static_cast<float>(mousePosition.y) >= shapePosition.y &&
+        static_cast<float>(mousePosition.y) <= shapePosition.y + shapeSize.y) {
         return true;
     }
     return false;
