@@ -2,6 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 float referenceWidth = 1280.0f;
 float referenceHeight = 800.0f;
 float referenceTextSize = 30.0f;
@@ -16,8 +20,11 @@ bool exitMenu = false;
 bool settingMapCopy = false;
 bool button_OFF_ON[2];
 bool buttonMouseLeft = false;
+bool readDir = true;
 
 std::map<std::string, int> settings_map_copy_map;
+std::vector<std::string> namesFileSaves;
+std::vector<sf::Text> textNamesFileSaves;
 
 sf::Font font;
 sf::Text GameNameText;
@@ -37,6 +44,8 @@ sf::Text settingsGraphics[10];
 
 sf::RectangleShape button_rectangle_shape[5];
 sf::RectangleShape button_shape[5];
+sf::RectangleShape shapeCreateWorld[2];
+
 
 sf::ConvexShape triangle[2];
 
@@ -76,7 +85,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
 
     windowSize = window.getSize();
 
-    float xText = percentage(4.69f, windowSize.x);
+    const float xText = percentage(4.69f, windowSize.x);
 
     CreateWorldText.setFont(font);
     CreateWorldText.setString("Create World");
@@ -224,7 +233,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     versionApp.setFont(font);
     versionApp.setCharacterSize(textSizeOptimization(windowSize, 15.0f));
     versionApp.setFillColor(sf::Color::White);
-    versionApp.setString("version-0.22-ALPHA--menu-version-0.5");
+    versionApp.setString("version-0.23-ALPHA--menu-version-0.51");
     versionApp.setPosition(0, percentage800(780, windowSize.y));
 
 
@@ -243,6 +252,13 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     TextCreateWorld[2].setString("Create World");
     TextCreateWorld[2].setPosition(percentage1280(836, windowSize.x), percentage800(10, windowSize.y));
 
+
+    shapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(windowSize.x), percentage800(65, windowSize.y)));
+    shapeCreateWorld[1].setSize(sf::Vector2f(static_cast<float>(windowSize.x), percentage800(120, windowSize.y)));
+    shapeCreateWorld[0].setFillColor(sf::Color(43, 63, 114));
+    shapeCreateWorld[1].setFillColor(sf::Color(43, 63, 114));
+    shapeCreateWorld[0].setPosition(0,0);
+    shapeCreateWorld[1].setPosition(0,percentage800(710, windowSize.y));
 
 
     std::cout << "INFO: menu initialized is successful" << std::endl;
@@ -318,9 +334,51 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
     buttonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
 void CreateWorld(sf::RenderWindow& window, int& menuStatus) {
+    if (readDir) {
+        sf::Vector2f pos = {50,70};
+        // Укажите путь к вашей директории
+        const fs::path dir_path = "worlds/";
+
+        // Проверяем, существует ли директория
+        if (!fs::is_directory(dir_path)) {
+            std::cerr << "INFO: There is no save world directory";
+            return;
+        }
+        // Перебираем файлы в директории
+        for (const auto& entry : fs::directory_iterator(dir_path)) {
+            // Проверяем, является ли запись файлом (или директорией)
+            if (fs::is_regular_file(entry.status())) {
+                namesFileSaves.push_back(entry.path().filename().string());
+                sf::Text text;
+                text.setFillColor(sf::Color::White);
+                text.setFont(font);
+                text.setString(entry.path().filename().string());
+                text.setPosition(pos);
+                pos = sf::Vector2f(pos.x, pos.y+65);
+                textNamesFileSaves.push_back(text);
+            }
+        }
+        readDir = false;
+    }
+
+    if (collisionMouse(mousePosition, sf::Vector2f(percentage(50.0f, windowSize.x), static_cast<float>(windowSize.y)), sf::Vector2f(0,0))) {
+        //проверка колесика мышки в верх в низ
+    }
+
+
+
+
+
+    for (const auto& el : textNamesFileSaves) {
+        window.draw(el);
+    }
+    window.draw(shapeCreateWorld[0]);
+    window.draw(shapeCreateWorld[1]);
+
     for (const auto& el : TextCreateWorld) {
         window.draw(el);
     }
+
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     if (!settingMapCopy) {
