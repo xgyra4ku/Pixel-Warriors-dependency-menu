@@ -264,7 +264,8 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     std::cout << "INFO: menu initialized is successful" << std::endl;
 }
 
-extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
+extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time) {
+
     window.clear(sf::Color(43, 63, 114));
     mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
     //std::cout << mousePosition.x << " " << mousePosition.y << std::endl;
@@ -320,7 +321,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         window.draw(ExitText);
     }
     else if (menuStatus == 2) {
-        CreateWorld(window, menuStatus);
+        CreateWorld(window, menuStatus, mouseEventWheel, time);
     }
     else if (menuStatus == 3) {
         SettingLogic(window, menuStatus, settingsMap);
@@ -333,7 +334,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
 
     buttonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
-void CreateWorld(sf::RenderWindow& window, int& menuStatus) {
+void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time) {
     if (readDir) {
         sf::Vector2f pos = {50,70};
         // Укажите путь к вашей директории
@@ -362,13 +363,19 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus) {
     }
 
     if (collisionMouse(mousePosition, sf::Vector2f(percentage(50.0f, windowSize.x), static_cast<float>(windowSize.y)), sf::Vector2f(0,0))) {
-        //проверка колесика мышки в верх в низ
+        if (mouseEventWheel > 0) {
+            for (auto& el : textNamesFileSaves) {
+                sf::Vector2f posEl = el.getPosition();
+                el.setPosition(sf::Vector2f(posEl.x, posEl.y+=4*time));
+            }
+        } else if (mouseEventWheel < 0 ) {
+            for (auto& el : textNamesFileSaves) {
+                sf::Vector2f posEl = el.getPosition();
+                el.setPosition(sf::Vector2f(posEl.x, posEl.y-=4*time));
+            }
+        }
+
     }
-
-
-
-
-
     for (const auto& el : textNamesFileSaves) {
         window.draw(el);
     }
@@ -378,6 +385,8 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus) {
     for (const auto& el : TextCreateWorld) {
         window.draw(el);
     }
+
+
 
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
