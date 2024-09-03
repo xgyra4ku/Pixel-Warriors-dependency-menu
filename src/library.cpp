@@ -6,54 +6,56 @@
 
 namespace fs = std::filesystem;
 
-float referenceWidth = 1280.0f;
-float referenceHeight = 800.0f;
-float referenceTextSize = 30.0f;
+float g_fReferenceWidth = 1280.0f;
+float g_fReferenceHeight = 800.0f;
+float g_fReferenceTextSize = 30.0f;
 
 // Текущие размеры окна
-float currentWidth;
-float currentHeight;
+float g_fCurrentWidth;
+float g_fCurrentHeight;
 
-int SettingsStatus = 0;
+int g_iSettingsStatus = 0;
 
-bool exitMenu = false;
-bool settingMapCopy = false;
-bool button_OFF_ON[2];
-bool buttonMouseLeft = false;
-bool readDir = true;
+bool g_bExitMenu = false;
+bool g_bSettingMapCopy = false;
+bool g_blsButton_OFF_ON[2];
+bool g_bButtonMouseLeft = false;
+bool g_bReadDir = true;
 
-std::map<std::string, int> settings_map_copy_map;
-std::vector<std::string> namesFileSaves;
-std::vector<sf::Text> textNamesFileSaves;
+std::map<std::string, int> g_mSettings_map_copy_map;
+std::vector<std::string> g_vNamesFileSaves;
+std::vector<sf::Text> g_vtTextNamesFileSaves;
 
-sf::Font font;
-sf::Text GameNameText;
-sf::Text CreateWorldText;
-sf::Text SettingsText;
-sf::Text ExitText;
-sf::Text ModNameText;
-sf::Text versionApp;
-
-
-sf::Vector2f mousePosition;
-sf::Color colorHover(34, 127, 79); // Цвет при наведении
-sf::Color colorNormal(255, 255, 255); // Цвет по умолчанию
-
-sf::Text settings[5];
-sf::Text settingsGraphics[10];
-
-sf::RectangleShape button_rectangle_shape[5];
-sf::RectangleShape button_shape[5];
-sf::RectangleShape shapeCreateWorld[2];
+sf::Font g_sffFont;
+sf::Text g_sftGameNameText;
+sf::Text g_sftCreateWorldText;
+sf::Text g_sftSettingsText;
+sf::Text g_sftExitText;
+sf::Text g_sftModNameText;
+sf::Text g_sftVersionApp;
 
 
-sf::ConvexShape triangle[2];
+sf::Vector2f g_vfMousePosition;
+sf::Color g_sfcColorHover(34, 127, 79); // Цвет при наведении
+sf::Color g_sfcColorNormal(255, 255, 255); // Цвет по умолчанию
+
+sf::Text g_sftSettings[5];
+sf::Text g_sftSettingsGraphics[10];
+
+sf::RectangleShape g_sfrspButton_rectangle_shape[5];
+sf::RectangleShape g_sfrspSButton_shape[5];
+sf::RectangleShape g_sfrspShapeCreateWorld[2];
 
 
-sf::Vector2u windowSize;
+sf::ConvexShape g_sfrcpTriangle[2];
 
-int displaySolutionIndex = 0;
-int displaySolution[17][2] = {
+
+sf::Vector2u g_v2uWindowSize;
+
+sf::Text g_sftCreateWorld[10];
+
+int g_iDisplaySolutionIndex = 0;
+int g_iDisplaySolution[17][2] = {
     {800, 600},     // 800x600
     {1024, 768},    // 1024x768
     {1280, 720},    // 1280x720
@@ -73,255 +75,255 @@ int displaySolution[17][2] = {
     {4096, 2160},   // 4096x2160 (DCI 4K)
 };
 
-sf::Text TextCreateWorld[10];
+
 
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
-    if (!font.loadFromFile("Dependency/font.otf")) {
+    if (!g_sffFont.loadFromFile("Dependency/font.otf")) {
         std::cerr << "ERROR: Failed to initialize menu. Failed to load font" << std::endl;
         window.close();
         return;
     }
 
-    windowSize = window.getSize();
+    g_v2uWindowSize = window.getSize();
 
-    const float xText = percentage(4.69f, windowSize.x);
+    const float xText = percentage(4.69f, g_v2uWindowSize.x);
 
-    CreateWorldText.setFont(font);
-    CreateWorldText.setString("Create World");
-    CreateWorldText.setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    CreateWorldText.setFillColor(sf::Color::White);
-    CreateWorldText.setPosition(xText, percentage(50.0f, windowSize.y));
+    g_sftCreateWorldText.setFont(g_sffFont);
+    g_sftCreateWorldText.setString("Create World");
+    g_sftCreateWorldText.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftCreateWorldText.setFillColor(sf::Color::White);
+    g_sftCreateWorldText.setPosition(xText, percentage(50.0f, g_v2uWindowSize.y));
 
-    SettingsText.setFont(font);
-    SettingsText.setString("Settings");
-    SettingsText.setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    SettingsText.setFillColor(sf::Color::White);
-    SettingsText.setPosition(xText, percentage(62.5f, windowSize.y));
+    g_sftSettingsText.setFont(g_sffFont);
+    g_sftSettingsText.setString("Settings");
+    g_sftSettingsText.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftSettingsText.setFillColor(sf::Color::White);
+    g_sftSettingsText.setPosition(xText, percentage(62.5f, g_v2uWindowSize.y));
 
-    ModNameText.setFont(font);
-    ModNameText.setString("Mods");
-    ModNameText.setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    ModNameText.setFillColor(sf::Color::White);
-    ModNameText.setPosition(xText, percentage(75.0f, windowSize.y));
+    g_sftModNameText.setFont(g_sffFont);
+    g_sftModNameText.setString("Mods");
+    g_sftModNameText.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftModNameText.setFillColor(sf::Color::White);
+    g_sftModNameText.setPosition(xText, percentage(75.0f, g_v2uWindowSize.y));
 
-    ExitText.setFont(font);
-    ExitText.setString("Exit");
-    ExitText.setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    ExitText.setFillColor(sf::Color::White);
-    ExitText.setPosition(xText, percentage(87.5f, windowSize.y));
+    g_sftExitText.setFont(g_sffFont);
+    g_sftExitText.setString("Exit");
+    g_sftExitText.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftExitText.setFillColor(sf::Color::White);
+    g_sftExitText.setPosition(xText, percentage(87.5f, g_v2uWindowSize.y));
 
-    GameNameText.setFont(font);
-    GameNameText.setString("Pixel-Warriors");
-    GameNameText.setCharacterSize(textSizeOptimization(windowSize, 60.0f));
-    GameNameText.setFillColor(sf::Color(204, 155, 248));
-    GameNameText.setPosition(percentage(54.69, windowSize.x), 50);
+    g_sftGameNameText.setFont(g_sffFont);
+    g_sftGameNameText.setString("Pixel-Warriors");
+    g_sftGameNameText.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 60.0f));
+    g_sftGameNameText.setFillColor(sf::Color(204, 155, 248));
+    g_sftGameNameText.setPosition(percentage(54.69, g_v2uWindowSize.x), 50);
 
-    for (auto & setting : settings) {
-        setting.setFont(font);
-        setting.setCharacterSize(textSizeOptimization(windowSize, 30.0f));
+    for (auto & setting : g_sftSettings) {
+        setting.setFont(g_sffFont);
+        setting.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 30.0f));
         setting.setFillColor(sf::Color::White);
     }
 
-    settings[0].setString("Exit");
-    settings[0].setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    settings[1].setString("Audio");
-    settings[2].setString("Graphics");
-    settings[3].setString("Apply");
-    settings[3].setCharacterSize(textSizeOptimization(windowSize, 40.0f));
-    settings[4].setString("Keys");
+    g_sftSettings[0].setString("Exit");
+    g_sftSettings[0].setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftSettings[1].setString("Audio");
+    g_sftSettings[2].setString("Graphics");
+    g_sftSettings[3].setString("Apply");
+    g_sftSettings[3].setCharacterSize(textSizeOptimization(g_v2uWindowSize, 40.0f));
+    g_sftSettings[4].setString("Keys");
 
-    settings[0].setPosition(xText, percentage(87.5f, windowSize.y));
-    settings[1].setPosition(xText, percentage(50.0f, windowSize.y));
-    settings[2].setPosition(xText, percentage(37.5f, windowSize.y));
-    settings[3].setPosition(percentage(15.63f, windowSize.x), percentage(87.5f, windowSize.y));
-    settings[4].setPosition(xText, percentage(62.5f, windowSize.y));
+    g_sftSettings[0].setPosition(xText, percentage(87.5f, g_v2uWindowSize.y));
+    g_sftSettings[1].setPosition(xText, percentage(50.0f, g_v2uWindowSize.y));
+    g_sftSettings[2].setPosition(xText, percentage(37.5f, g_v2uWindowSize.y));
+    g_sftSettings[3].setPosition(percentage(15.63f, g_v2uWindowSize.x), percentage(87.5f, g_v2uWindowSize.y));
+    g_sftSettings[4].setPosition(xText, percentage(62.5f, g_v2uWindowSize.y));
 
 
-    for (auto& el : settingsGraphics) {
-        el.setFont(font);
-        el.setCharacterSize(textSizeOptimization(windowSize, 30.0f));
+    for (auto& el : g_sftSettingsGraphics) {
+        el.setFont(g_sffFont);
+        el.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 30.0f));
         el.setFillColor(sf::Color::White);
     }
 
-    settingsGraphics[0].setString("Resolution:");
-    settingsGraphics[0].setPosition(percentage(23.44f, windowSize.x), percentage(37.5f, windowSize.y));  // X=300/1280=23.44%
+    g_sftSettingsGraphics[0].setString("Resolution:");
+    g_sftSettingsGraphics[0].setPosition(percentage(23.44f, g_v2uWindowSize.x), percentage(37.5f, g_v2uWindowSize.y));  // X=300/1280=23.44%
 
-    settingsGraphics[1].setString("Fullscreen:");
-    settingsGraphics[1].setPosition(percentage(23.44f, windowSize.x), percentage(50.0f, windowSize.y));  // X=300/1280=23.44%
+    g_sftSettingsGraphics[1].setString("Fullscreen:");
+    g_sftSettingsGraphics[1].setPosition(percentage(23.44f, g_v2uWindowSize.x), percentage(50.0f, g_v2uWindowSize.y));  // X=300/1280=23.44%
 
-    settingsGraphics[2].setString("Fps:");
-    settingsGraphics[2].setPosition(percentage(23.44f, windowSize.x), percentage(62.5f, windowSize.y));  // X=300/1280=23.44%
+    g_sftSettingsGraphics[2].setString("Fps:");
+    g_sftSettingsGraphics[2].setPosition(percentage(23.44f, g_v2uWindowSize.x), percentage(62.5f, g_v2uWindowSize.y));  // X=300/1280=23.44%
 
-    settingsGraphics[3].setString("60");
-    settingsGraphics[3].setPosition(percentage(36.72f, windowSize.x), percentage(62.5f, windowSize.y));  // X=470/1280=36.72%
+    g_sftSettingsGraphics[3].setString("60");
+    g_sftSettingsGraphics[3].setPosition(percentage(36.72f, g_v2uWindowSize.x), percentage(62.5f, g_v2uWindowSize.y));  // X=470/1280=36.72%
 
-    settingsGraphics[4].setString("120");
-    settingsGraphics[4].setPosition(percentage(46.88f, windowSize.x), percentage(62.5f, windowSize.y));  // X=600/1280=46.88%
+    g_sftSettingsGraphics[4].setString("120");
+    g_sftSettingsGraphics[4].setPosition(percentage(46.88f, g_v2uWindowSize.x), percentage(62.5f, g_v2uWindowSize.y));  // X=600/1280=46.88%
 
-    settingsGraphics[5].setString("Max");
-    settingsGraphics[5].setPosition(percentage(60.16f, windowSize.x), percentage(62.5f, windowSize.y));  // X=770/1280=60.16%
+    g_sftSettingsGraphics[5].setString("Max");
+    g_sftSettingsGraphics[5].setPosition(percentage(60.16f, g_v2uWindowSize.x), percentage(62.5f, g_v2uWindowSize.y));  // X=770/1280=60.16%
 
-    settingsGraphics[6].setString("V-sync");
-    settingsGraphics[6].setPosition(percentage(74.22f, windowSize.x), percentage(62.5f, windowSize.y));  // X=950/1280=74.22%
+    g_sftSettingsGraphics[6].setString("V-sync");
+    g_sftSettingsGraphics[6].setPosition(percentage(74.22f, g_v2uWindowSize.x), percentage(62.5f, g_v2uWindowSize.y));  // X=950/1280=74.22%
 
-    settingsGraphics[7].setPosition(percentage(68.75f, windowSize.x), percentage(37.5f, windowSize.y));  // X=880/1280=68.75%
+    g_sftSettingsGraphics[7].setPosition(percentage(68.75f, g_v2uWindowSize.x), percentage(37.5f, g_v2uWindowSize.y));  // X=880/1280=68.75%
 
 
 
     for (int i = 0; i < 17; i++) {
-        if (displaySolution[i][0] == windowSize.x && displaySolution[i][1] == windowSize.y) {
-            displaySolutionIndex = i;
-            settingsGraphics[7].setString(std::to_string(displaySolution[displaySolutionIndex][0])
-                    + 'x' + std::to_string(displaySolution[displaySolutionIndex][1]));
+        if (g_iDisplaySolution[i][0] == g_v2uWindowSize.x && g_iDisplaySolution[i][1] == g_v2uWindowSize.y) {
+            g_iDisplaySolutionIndex = i;
+            g_sftSettingsGraphics[7].setString(std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][0])
+                    + 'x' + std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][1]));
             break;
         }
     }
 
     for (int i = 0; i < 5; i++) {
-        button_rectangle_shape[i].setFillColor(sf::Color(255, 255, 255));
-        button_shape[i].setFillColor(sf::Color(10,10,10));
+        g_sfrspButton_rectangle_shape[i].setFillColor(sf::Color(255, 255, 255));
+        g_sfrspSButton_shape[i].setFillColor(sf::Color(10,10,10));
     }
 
     //function buttons
     //fullscreen
-    button_rectangle_shape[0].setSize(sf::Vector2f(percentage(1.17f, windowSize.x), percentage(1.88f, windowSize.y)));
-    button_rectangle_shape[0].setPosition(percentage(85.94f, windowSize.x), percentage(52.0f, windowSize.y));
+    g_sfrspButton_rectangle_shape[0].setSize(sf::Vector2f(percentage(1.17f, g_v2uWindowSize.x), percentage(1.88f, g_v2uWindowSize.y)));
+    g_sfrspButton_rectangle_shape[0].setPosition(percentage(85.94f, g_v2uWindowSize.x), percentage(52.0f, g_v2uWindowSize.y));
 
-    button_shape[0].setSize(sf::Vector2f(percentage(1.02f, windowSize.x), percentage(1.63f, windowSize.y)));
-    button_shape[0].setPosition(percentage(86.02f, windowSize.x), percentage(52.13f, windowSize.y));
+    g_sfrspSButton_shape[0].setSize(sf::Vector2f(percentage(1.02f, g_v2uWindowSize.x), percentage(1.63f, g_v2uWindowSize.y)));
+    g_sfrspSButton_shape[0].setPosition(percentage(86.02f, g_v2uWindowSize.x), percentage(52.13f, g_v2uWindowSize.y));
     //V-sync
-    button_rectangle_shape[1].setSize(sf::Vector2f(percentage(1.17f, windowSize.x), percentage(1.88f, windowSize.y)));
-    button_rectangle_shape[1].setPosition(percentage(85.94f, windowSize.x), percentage(64.13f, windowSize.y));
+    g_sfrspButton_rectangle_shape[1].setSize(sf::Vector2f(percentage(1.17f, g_v2uWindowSize.x), percentage(1.88f, g_v2uWindowSize.y)));
+    g_sfrspButton_rectangle_shape[1].setPosition(percentage(85.94f, g_v2uWindowSize.x), percentage(64.13f, g_v2uWindowSize.y));
 
-    button_shape[1].setSize(sf::Vector2f(percentage(1.02f, windowSize.x), percentage(1.63f, windowSize.y)));
-    button_shape[1].setPosition(percentage(86.02f, windowSize.x), percentage(64.25f, windowSize.y));
+    g_sfrspSButton_shape[1].setSize(sf::Vector2f(percentage(1.02f, g_v2uWindowSize.x), percentage(1.63f, g_v2uWindowSize.y)));
+    g_sfrspSButton_shape[1].setPosition(percentage(86.02f, g_v2uWindowSize.x), percentage(64.25f, g_v2uWindowSize.y));
     //60
-    button_rectangle_shape[2].setSize(sf::Vector2f(percentage(1.17f, windowSize.x), percentage(1.88f, windowSize.y)));
-    button_rectangle_shape[2].setPosition(percentage(41.8f, windowSize.x), percentage(64.13f, windowSize.y));
+    g_sfrspButton_rectangle_shape[2].setSize(sf::Vector2f(percentage(1.17f, g_v2uWindowSize.x), percentage(1.88f, g_v2uWindowSize.y)));
+    g_sfrspButton_rectangle_shape[2].setPosition(percentage(41.8f, g_v2uWindowSize.x), percentage(64.13f, g_v2uWindowSize.y));
 
-    button_shape[2].setSize(sf::Vector2f(percentage(1.02f, windowSize.x), percentage(1.63f, windowSize.y)));
-    button_shape[2].setPosition(percentage(41.88, windowSize.x), percentage(64.25f, windowSize.y));
+    g_sfrspSButton_shape[2].setSize(sf::Vector2f(percentage(1.02f, g_v2uWindowSize.x), percentage(1.63f, g_v2uWindowSize.y)));
+    g_sfrspSButton_shape[2].setPosition(percentage(41.88, g_v2uWindowSize.x), percentage(64.25f, g_v2uWindowSize.y));
     //120
-    button_rectangle_shape[3].setSize(sf::Vector2f(percentage(1.17f, windowSize.x), percentage(1.88f, windowSize.y)));
-    button_rectangle_shape[3].setPosition(percentage(53.52f, windowSize.x), percentage(64.13f, windowSize.y));
+    g_sfrspButton_rectangle_shape[3].setSize(sf::Vector2f(percentage(1.17f, g_v2uWindowSize.x), percentage(1.88f, g_v2uWindowSize.y)));
+    g_sfrspButton_rectangle_shape[3].setPosition(percentage(53.52f, g_v2uWindowSize.x), percentage(64.13f, g_v2uWindowSize.y));
 
-    button_shape[3].setSize(sf::Vector2f(percentage(1.02f, windowSize.x), percentage(1.63f, windowSize.y)));
-    button_shape[3].setPosition(percentage(53.59f, windowSize.x), percentage(64.25f, windowSize.y));
+    g_sfrspSButton_shape[3].setSize(sf::Vector2f(percentage(1.02f, g_v2uWindowSize.x), percentage(1.63f, g_v2uWindowSize.y)));
+    g_sfrspSButton_shape[3].setPosition(percentage(53.59f, g_v2uWindowSize.x), percentage(64.25f, g_v2uWindowSize.y));
     //Max
-    button_rectangle_shape[4].setSize(sf::Vector2f(percentage(1.17f, windowSize.x), percentage(1.88f, windowSize.y)));
-    button_rectangle_shape[4].setPosition(percentage(67.19f, windowSize.x), percentage(64.13f, windowSize.y));
+    g_sfrspButton_rectangle_shape[4].setSize(sf::Vector2f(percentage(1.17f, g_v2uWindowSize.x), percentage(1.88f, g_v2uWindowSize.y)));
+    g_sfrspButton_rectangle_shape[4].setPosition(percentage(67.19f, g_v2uWindowSize.x), percentage(64.13f, g_v2uWindowSize.y));
 
-    button_shape[4].setSize(sf::Vector2f(percentage(1.02f, windowSize.x), percentage(1.63f, windowSize.y)));
-    button_shape[4].setPosition(percentage(67.27f, windowSize.x), percentage(64.25f, windowSize.y));
+    g_sfrspSButton_shape[4].setSize(sf::Vector2f(percentage(1.02f, g_v2uWindowSize.x), percentage(1.63f, g_v2uWindowSize.y)));
+    g_sfrspSButton_shape[4].setPosition(percentage(67.27f, g_v2uWindowSize.x), percentage(64.25f, g_v2uWindowSize.y));
 
     // end function buttons
 
 
-    triangle[0].setPointCount(3);
-    triangle[0].setPoint(0, sf::Vector2f(percentage(66.25f, windowSize.x), percentage(40.0f, windowSize.y)));
-    triangle[0].setPoint(1, sf::Vector2f(percentage(67.42f, windowSize.x), percentage(41.25f, windowSize.y)));
-    triangle[0].setPoint(2, sf::Vector2f(percentage(67.42f, windowSize.x), percentage(38.75f, windowSize.y)));
-    triangle[0].setFillColor(sf::Color(10, 10, 10));
+    g_sfrcpTriangle[0].setPointCount(3);
+    g_sfrcpTriangle[0].setPoint(0, sf::Vector2f(percentage(66.25f, g_v2uWindowSize.x), percentage(40.0f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[0].setPoint(1, sf::Vector2f(percentage(67.42f, g_v2uWindowSize.x), percentage(41.25f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[0].setPoint(2, sf::Vector2f(percentage(67.42f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[0].setFillColor(sf::Color(10, 10, 10));
 
-    triangle[1].setPointCount(3);
-    triangle[1].setPoint(0, sf::Vector2f(percentage(87.11f, windowSize.x), percentage(40.0f, windowSize.y)));
-    triangle[1].setPoint(1, sf::Vector2f(percentage(85.94f, windowSize.x), percentage(41.25f, windowSize.y)));
-    triangle[1].setPoint(2, sf::Vector2f(percentage(85.94f, windowSize.x), percentage(38.75f, windowSize.y)));
-    triangle[1].setFillColor(sf::Color(10, 10, 10));
+    g_sfrcpTriangle[1].setPointCount(3);
+    g_sfrcpTriangle[1].setPoint(0, sf::Vector2f(percentage(87.11f, g_v2uWindowSize.x), percentage(40.0f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[1].setPoint(1, sf::Vector2f(percentage(85.94f, g_v2uWindowSize.x), percentage(41.25f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[1].setPoint(2, sf::Vector2f(percentage(85.94f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)));
+    g_sfrcpTriangle[1].setFillColor(sf::Color(10, 10, 10));
 
-    versionApp.setFont(font);
-    versionApp.setCharacterSize(textSizeOptimization(windowSize, 15.0f));
-    versionApp.setFillColor(sf::Color::White);
-    versionApp.setString("version-0.23-ALPHA--menu-version-0.51");
-    versionApp.setPosition(0, percentage800(780, windowSize.y));
+    g_sftVersionApp.setFont(g_sffFont);
+    g_sftVersionApp.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 15.0f));
+    g_sftVersionApp.setFillColor(sf::Color::White);
+    g_sftVersionApp.setString("version-0.23-ALPHA--menu-version-0.51");
+    g_sftVersionApp.setPosition(0, percentage800(780, g_v2uWindowSize.y));
 
 
-    for (auto& el : TextCreateWorld) {
-        el.setFont(font);
-        el.setCharacterSize(textSizeOptimization(windowSize, 30.0f));
+    for (auto& el : g_sftCreateWorld) {
+        el.setFont(g_sffFont);
+        el.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 30.0f));
         el.setFillColor(sf::Color::White);
     }
-    TextCreateWorld[0].setCharacterSize(textSizeOptimization(windowSize, 50.0f));
-    TextCreateWorld[0].setString("\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|");
-    TextCreateWorld[0].setPosition(percentage1280(636, windowSize.x), percentage800(-58.5, windowSize.y));
+    g_sftCreateWorld[0].setCharacterSize(textSizeOptimization(g_v2uWindowSize, 50.0f));
+    g_sftCreateWorld[0].setString("\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|");
+    g_sftCreateWorld[0].setPosition(percentage1280(636, g_v2uWindowSize.x), percentage800(-58.5, g_v2uWindowSize.y));
 
-    TextCreateWorld[1].setString("Saves");
-    TextCreateWorld[1].setPosition(percentage1280(212, windowSize.x), percentage800(10, windowSize.y));
+    g_sftCreateWorld[1].setString("Saves");
+    g_sftCreateWorld[1].setPosition(percentage1280(212, g_v2uWindowSize.x), percentage800(10, g_v2uWindowSize.y));
 
-    TextCreateWorld[2].setString("Create World");
-    TextCreateWorld[2].setPosition(percentage1280(836, windowSize.x), percentage800(10, windowSize.y));
+    g_sftCreateWorld[2].setString("Create World");
+    g_sftCreateWorld[2].setPosition(percentage1280(836, g_v2uWindowSize.x), percentage800(10, g_v2uWindowSize.y));
 
 
-    shapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(windowSize.x), percentage800(65, windowSize.y)));
-    shapeCreateWorld[1].setSize(sf::Vector2f(static_cast<float>(windowSize.x), percentage800(120, windowSize.y)));
-    shapeCreateWorld[0].setFillColor(sf::Color(43, 63, 114));
-    shapeCreateWorld[1].setFillColor(sf::Color(43, 63, 114));
-    shapeCreateWorld[0].setPosition(0,0);
-    shapeCreateWorld[1].setPosition(0,percentage800(710, windowSize.y));
+    g_sfrspShapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(g_v2uWindowSize.x), percentage800(65, g_v2uWindowSize.y)));
+    g_sfrspShapeCreateWorld[1].setSize(sf::Vector2f(static_cast<float>(g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
+    g_sfrspShapeCreateWorld[0].setFillColor(sf::Color(43, 63, 114));
+    g_sfrspShapeCreateWorld[1].setFillColor(sf::Color(43, 63, 114));
+    g_sfrspShapeCreateWorld[0].setPosition(0,0);
+    g_sfrspShapeCreateWorld[1].setPosition(0,percentage800(710, g_v2uWindowSize.y));
 
 
     std::cout << "INFO: menu initialized is successful" << std::endl;
 }
 
-extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time) {
+extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time, std::string& strNameFileWorld) {
 
     window.clear(sf::Color(43, 63, 114));
-    mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
+    g_vfMousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
     //std::cout << mousePosition.x << " " << mousePosition.y << std::endl;
     if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        exitMenu = true;
+        g_bExitMenu = true;
     if (menuStatus == 0) {
 
         //Create World
-        if (CreateWorldText.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-            CreateWorldText.setFillColor(colorHover);
+        if (g_sftCreateWorldText.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+            g_sftCreateWorldText.setFillColor(g_sfcColorHover);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 menuStatus = 2;
         }
         else {
-            CreateWorldText.setFillColor(colorNormal);
+            g_sftCreateWorldText.setFillColor(g_sfcColorNormal);
         }
         //Settings
-        if (SettingsText.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-            SettingsText.setFillColor(colorHover);
+        if (g_sftSettingsText.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+            g_sftSettingsText.setFillColor(g_sfcColorHover);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 menuStatus = 3;
         }
         else {
-            SettingsText.setFillColor(colorNormal);
+            g_sftSettingsText.setFillColor(g_sfcColorNormal);
         }
         //Mods
-        if (ModNameText.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-            ModNameText.setFillColor(colorHover);
+        if (g_sftModNameText.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+            g_sftModNameText.setFillColor(g_sfcColorHover);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 menuStatus = 4;
         }
         else {
-            ModNameText.setFillColor(colorNormal);
+            g_sftModNameText.setFillColor(g_sfcColorNormal);
         }
         //Exit
-        if (ExitText.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-            ExitText.setFillColor(colorHover);
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && exitMenu) {
+        if (g_sftExitText.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+            g_sftExitText.setFillColor(g_sfcColorHover);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && g_bExitMenu) {
                 std::cout << "INFO: Exit" << std::endl;
                 window.close();
-                exitMenu = false;
+                g_bExitMenu = false;
                 return;
             }
         }
         else {
-            ExitText.setFillColor(colorNormal);
+            g_sftExitText.setFillColor(g_sfcColorNormal);
         }
 
-        window.draw(GameNameText);
-        window.draw(CreateWorldText);
-        window.draw(SettingsText);
-        window.draw(ModNameText);
-        window.draw(ExitText);
+        window.draw(g_sftGameNameText);
+        window.draw(g_sftCreateWorldText);
+        window.draw(g_sftSettingsText);
+        window.draw(g_sftModNameText);
+        window.draw(g_sftExitText);
     }
     else if (menuStatus == 2) {
-        CreateWorld(window, menuStatus, mouseEventWheel, time);
+        CreateWorld(window, menuStatus, mouseEventWheel, time, strNameFileWorld);
     }
     else if (menuStatus == 3) {
         SettingLogic(window, menuStatus, settingsMap);
@@ -330,12 +332,12 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
 
     }
 
-    window.draw(versionApp);
+    window.draw(g_sftVersionApp);
 
-    buttonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
-void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time) {
-    if (readDir) {
+void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::string& strNameFileWorld) {
+    if (g_bReadDir) {
         sf::Vector2f pos = {50,70};
         // Укажите путь к вашей директории
         const fs::path dir_path = "worlds/";
@@ -349,195 +351,200 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
         for (const auto& entry : fs::directory_iterator(dir_path)) {
             // Проверяем, является ли запись файлом (или директорией)
             if (fs::is_regular_file(entry.status())) {
-                namesFileSaves.push_back(entry.path().filename().string());
+                g_vNamesFileSaves.push_back(entry.path().filename().string());
                 sf::Text text;
                 text.setFillColor(sf::Color::White);
-                text.setFont(font);
+                text.setFont(g_sffFont);
                 text.setString(entry.path().filename().string());
                 text.setPosition(pos);
                 pos = sf::Vector2f(pos.x, pos.y+65);
-                textNamesFileSaves.push_back(text);
+                g_vtTextNamesFileSaves.push_back(text);
             }
         }
-        readDir = false;
+        g_bReadDir = false;
     }
 
-    if (collisionMouse(mousePosition, sf::Vector2f(percentage(50.0f, windowSize.x), static_cast<float>(windowSize.y)), sf::Vector2f(0,0))) {
+    if (collisionMouse(g_vfMousePosition, sf::Vector2f(percentage(50.0f, g_v2uWindowSize.x), static_cast<float>(g_v2uWindowSize.y)), sf::Vector2f(0,0))) {
         if (mouseEventWheel > 0) {
-            for (auto& el : textNamesFileSaves) {
+            for (auto& el : g_vtTextNamesFileSaves) {
                 sf::Vector2f posEl = el.getPosition();
                 el.setPosition(sf::Vector2f(posEl.x, posEl.y+=4*time));
             }
         } else if (mouseEventWheel < 0 ) {
-            for (auto& el : textNamesFileSaves) {
+            for (auto& el : g_vtTextNamesFileSaves) {
                 sf::Vector2f posEl = el.getPosition();
                 el.setPosition(sf::Vector2f(posEl.x, posEl.y-=4*time));
             }
         }
 
     }
-    for (const auto& el : textNamesFileSaves) {
+    for (auto& el : g_vtTextNamesFileSaves) {
+         if (el.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+             el.setFillColor(g_sfcColorHover);
+             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                 strNameFileWorld = el.getString();
+                 menuStatus = -3;
+             }
+        }
+        window.draw(el);
+        el.setFillColor(g_sfcColorNormal);
+    }
+    window.draw(g_sfrspShapeCreateWorld[0]);
+    window.draw(g_sfrspShapeCreateWorld[1]);
+
+    for (const auto& el : g_sftCreateWorld) {
         window.draw(el);
     }
-    window.draw(shapeCreateWorld[0]);
-    window.draw(shapeCreateWorld[1]);
-
-    for (const auto& el : TextCreateWorld) {
-        window.draw(el);
-    }
-
-
-
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
-    if (!settingMapCopy) {
-        settings_map_copy_map = settingsMap;
-        settingMapCopy = true;
+    if (!g_bSettingMapCopy) {
+        g_mSettings_map_copy_map = settingsMap;
+        g_bSettingMapCopy = true;
     }
     //exit
-    if (settings[0].getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-        settings[0].setFillColor(colorHover);
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && exitMenu) {
+    if (g_sftSettings[0].getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+        g_sftSettings[0].setFillColor(g_sfcColorHover);
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && g_bExitMenu) {
             std::cout << "Exit menu" << std::endl;
             menuStatus = 0;
-            SettingsStatus = 0;
-            exitMenu = false;
-            settingMapCopy = false;
+            g_iSettingsStatus = 0;
+            g_bExitMenu = false;
+            g_bSettingMapCopy = false;
         }
     }
     //audio
-    if (settings[1].getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    if (g_sftSettings[1].getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            SettingsStatus = 1;
-            settings[1].setFillColor(colorHover);
+            g_iSettingsStatus = 1;
+            g_sftSettings[1].setFillColor(g_sfcColorHover);
         }
     }
     //graphics
-    if (settings[2].getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    if (g_sftSettings[2].getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            SettingsStatus = 0;
-            settings[2].setFillColor(colorHover);
+            g_iSettingsStatus = 0;
+            g_sftSettings[2].setFillColor(g_sfcColorHover);
         }
     }
     //keys
-    if (settings[4].getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+    if (g_sftSettings[4].getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            SettingsStatus = 3;
-            settings[4].setFillColor(colorHover);
+            g_iSettingsStatus = 3;
+            g_sftSettings[4].setFillColor(g_sfcColorHover);
         }
     }
     //apply
-    if (settings[3].getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-        settings[3].setFillColor(colorHover);
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
+    if (g_sftSettings[3].getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
+        g_sftSettings[3].setFillColor(g_sfcColorHover);
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
             menuStatus = -2;
-            settings_map_copy_map["windowWidth"] = displaySolution[displaySolutionIndex][0];
-            settings_map_copy_map["windowHeight"] = displaySolution[displaySolutionIndex][1];
-            settingsMap = settings_map_copy_map;
-            settingMapCopy = false;
+            g_mSettings_map_copy_map["windowWidth"] = g_iDisplaySolution[g_iDisplaySolutionIndex][0];
+            g_mSettings_map_copy_map["windowHeight"] = g_iDisplaySolution[g_iDisplaySolutionIndex][1];
+            settingsMap = g_mSettings_map_copy_map;
+            g_bSettingMapCopy = false;
         }
     }
-    if (SettingsStatus == 0) {
+    if (g_iSettingsStatus == 0) {
 
-        if (collisionMouse(mousePosition, button_rectangle_shape[0].getSize(), button_rectangle_shape[0].getPosition())) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
-                settings_map_copy_map["fullscreen"] = !settings_map_copy_map["fullscreen"];
+        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[0].getSize(), g_sfrspButton_rectangle_shape[0].getPosition())) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                g_mSettings_map_copy_map["fullscreen"] = !g_mSettings_map_copy_map["fullscreen"];
             }
         }
-        if (collisionMouse(mousePosition, button_rectangle_shape[1].getSize(), button_rectangle_shape[1].getPosition())) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
-                settings_map_copy_map["V-sync"] = !settings_map_copy_map["V-sync"];
-                settings_map_copy_map["fps"] = 0;
+        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[1].getSize(), g_sfrspButton_rectangle_shape[1].getPosition())) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                g_mSettings_map_copy_map["V-sync"] = !g_mSettings_map_copy_map["V-sync"];
+                g_mSettings_map_copy_map["fps"] = 0;
             }
         }
-        if (collisionMouse(mousePosition, button_rectangle_shape[2].getSize(), button_rectangle_shape[2].getPosition())) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
-                settings_map_copy_map["fps"] = 60;
-                settings_map_copy_map["V-sync"] = 0;
+        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[2].getSize(), g_sfrspButton_rectangle_shape[2].getPosition())) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                g_mSettings_map_copy_map["fps"] = 60;
+                g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
-        if (collisionMouse(mousePosition, button_rectangle_shape[3].getSize(), button_rectangle_shape[3].getPosition())) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
-                settings_map_copy_map["fps"] = 120;
-                settings_map_copy_map["V-sync"] = 0;
+        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[3].getSize(), g_sfrspButton_rectangle_shape[3].getPosition())) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                g_mSettings_map_copy_map["fps"] = 120;
+                g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
-        if (collisionMouse(mousePosition, button_rectangle_shape[4].getSize(), button_rectangle_shape[4].getPosition())) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
-                settings_map_copy_map["fps"] = -1;
-                settings_map_copy_map["V-sync"] = 0;
+        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[4].getSize(), g_sfrspButton_rectangle_shape[4].getPosition())) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+                g_mSettings_map_copy_map["fps"] = -1;
+                g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
 
-        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(85.94f, windowSize.x), percentage(38.75f, windowSize.y)))) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
+        if (collisionMouse(g_vfMousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(85.94f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
 
-                if (displaySolutionIndex >= 16) {
-                    displaySolutionIndex = 0;
+                if (g_iDisplaySolutionIndex >= 16) {
+                    g_iDisplaySolutionIndex = 0;
                 } else {
-                    displaySolutionIndex++;
+                    g_iDisplaySolutionIndex++;
                 }
-                settingsGraphics[7].setString(std::to_string(displaySolution[displaySolutionIndex][0])
-                    + 'x' + std::to_string(displaySolution[displaySolutionIndex][1]));
+                g_sftSettingsGraphics[7].setString(std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][0])
+                    + 'x' + std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][1]));
             }
         }
 
-        if (collisionMouse(mousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(66.25f, windowSize.x), percentage(38.75f, windowSize.y)))) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !buttonMouseLeft) {
+        if (collisionMouse(g_vfMousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(66.25f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
 
-                if (displaySolutionIndex <= 0) {
-                    displaySolutionIndex = 16;
+                if (g_iDisplaySolutionIndex <= 0) {
+                    g_iDisplaySolutionIndex = 16;
                 } else {
-                    displaySolutionIndex--;
+                    g_iDisplaySolutionIndex--;
                 }
-                settingsGraphics[7].setString(std::to_string(displaySolution[displaySolutionIndex][0])
-                    + 'x' + std::to_string(displaySolution[displaySolutionIndex][1]));
+                g_sftSettingsGraphics[7].setString(std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][0])
+                    + 'x' + std::to_string(g_iDisplaySolution[g_iDisplaySolutionIndex][1]));
             }
         }
 
         //draw
-        for (const auto &el : settingsGraphics) {
+        for (const auto &el : g_sftSettingsGraphics) {
             window.draw(el);
         }
-        for (const auto &el : button_rectangle_shape) {
+        for (const auto &el : g_sfrspButton_rectangle_shape) {
             window.draw(el);
         }
 
-        if (settings_map_copy_map["fullscreen"] == 1) {
-            window.draw(button_shape[0]);
+        if (g_mSettings_map_copy_map["fullscreen"] == 1) {
+            window.draw(g_sfrspSButton_shape[0]);
         }
-        if (settings_map_copy_map["V-sync"] == 1) {
-            window.draw(button_shape[1]);
+        if (g_mSettings_map_copy_map["V-sync"] == 1) {
+            window.draw(g_sfrspSButton_shape[1]);
         } else {
-             switch (settings_map_copy_map["fps"]) {
+             switch (g_mSettings_map_copy_map["fps"]) {
             case -1:
-                window.draw(button_shape[4]);
+                window.draw(g_sfrspSButton_shape[4]);
                  break;
             case 60:
-                window.draw(button_shape[2]);
+                window.draw(g_sfrspSButton_shape[2]);
                  break;
             case 120:
-                window.draw(button_shape[3]);
+                window.draw(g_sfrspSButton_shape[3]);
                  break;
             default:
                  break;
             }
         }
-        window.draw(triangle[0]);
-        window.draw(triangle[1]);
+        window.draw(g_sfrcpTriangle[0]);
+        window.draw(g_sfrcpTriangle[1]);
         //std::cout << "Display solution index: "<< displaySolutionIndex << std::endl;
 
-    } else if (SettingsStatus == 1) {
+    } else if (g_iSettingsStatus == 1) {
 
-    } else if (SettingsStatus == 3) {
+    } else if (g_iSettingsStatus == 3) {
 
     }
 
-    for (auto & setting : settings) {
+    for (auto & setting : g_sftSettings) {
         window.draw(setting);
-        setting.setFillColor(colorNormal);
+        setting.setFillColor(g_sfcColorNormal);
     }
-    window.draw(GameNameText);
+    window.draw(g_sftGameNameText);
 }
 
 
