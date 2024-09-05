@@ -235,7 +235,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftVersionApp.setFont(g_sffFont);
     g_sftVersionApp.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 15.0f));
     g_sftVersionApp.setFillColor(sf::Color::White);
-    g_sftVersionApp.setString("version-0.24-ALPHA--menu-version-0.54");
+    g_sftVersionApp.setString("version-0.24-ALPHA--menu-version-0.55");
     g_sftVersionApp.setPosition(0, percentage800(780, g_v2uWindowSize.y));
 
 
@@ -253,6 +253,15 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
 
     g_sftCreateWorld[2].setString("Create World");
     g_sftCreateWorld[2].setPosition(percentage1280(836, g_v2uWindowSize.x), percentage800(10, g_v2uWindowSize.y));
+
+    g_sftCreateWorld[3].setString("Name");
+    g_sftCreateWorld[3].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(70, g_v2uWindowSize.y));
+
+    g_sftCreateWorld[4].setString("Seed");
+    g_sftCreateWorld[4].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(100, g_v2uWindowSize.y));
+
+    g_sftCreateWorld[5].setString("Create World");
+    g_sftCreateWorld[5].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y));
 
 
     g_sfrspShapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(g_v2uWindowSize.x), percentage800(65, g_v2uWindowSize.y)));
