@@ -235,7 +235,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftVersionApp.setFont(g_sffFont);
     g_sftVersionApp.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 15.0f));
     g_sftVersionApp.setFillColor(sf::Color::White);
-    g_sftVersionApp.setString("version-0.23-ALPHA--menu-version-0.51");
+    g_sftVersionApp.setString("version-0.24-ALPHA--menu-version-0.54");
     g_sftVersionApp.setPosition(0, percentage800(780, g_v2uWindowSize.y));
 
 
