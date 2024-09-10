@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(mod-menu)
 
-set(CMAKE_CXX_COMPILER "g++")
+#set(CMAKE_CXX_COMPILER "g++")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/debug)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -28,6 +28,8 @@ set(SFML_DIR ${CMAKE_SOURCE_DIR}/SFML)
 include_directories(${SFML_DIR}/include)
 link_directories(${SFML_DIR}/lib)
 
+add_subdirectory(Libs/LibKyraText/)
+
 # Включите директорию с заголовочными файлами nlohmann/json
 include_directories(${JSON_INCLUDE_DIR})
 
@@ -37,6 +39,7 @@ find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
 
 target_link_libraries(
         mod-menu
+        LibKyraText
         sfml-system
         sfml-window
         sfml-graphics

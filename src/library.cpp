@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <filesystem>
+#include <LibKyraText.h>
 
 namespace fs = std::filesystem;
 
@@ -75,7 +76,7 @@ int g_iDisplaySolution[17][2] = {
     {4096, 2160},   // 4096x2160 (DCI 4K)
 };
 
-
+ktx::cInputText g_tiInput[2];
 
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
@@ -88,6 +89,17 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_v2uWindowSize = window.getSize();
 
     const float xText = percentage(4.69f, g_v2uWindowSize.x);
+
+    for (auto& el : g_tiInput) {
+        el.setFont(g_sffFont);
+        el.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 22.0f));
+        el.setRectSize(sf::Vector2f(300, 35));
+    }
+    g_tiInput[0].setPositionText(sf::Vector2f(percentage1280(792, g_v2uWindowSize.x), percentage800(70, g_v2uWindowSize.y)));
+    g_tiInput[0].setPositionRectangleShape(sf::Vector2f(percentage1280(790, g_v2uWindowSize.x), percentage800(70, g_v2uWindowSize.y)));
+    g_tiInput[1].setPositionText(sf::Vector2f(percentage1280(792, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
+    g_tiInput[1].setPositionRectangleShape(sf::Vector2f(percentage1280(790, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
+    //g_tiInput[0].setInput(true);
 
     g_sftCreateWorldText.setFont(g_sffFont);
     g_sftCreateWorldText.setString("Create World");
@@ -254,14 +266,15 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftCreateWorld[2].setString("Create World");
     g_sftCreateWorld[2].setPosition(percentage1280(836, g_v2uWindowSize.x), percentage800(10, g_v2uWindowSize.y));
 
-    g_sftCreateWorld[3].setString("Name");
-    g_sftCreateWorld[3].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(70, g_v2uWindowSize.y));
+    g_sftCreateWorld[3].setString("Name:");
+    g_sftCreateWorld[3].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(70, g_v2uWindowSize.y));
 
-    g_sftCreateWorld[4].setString("Seed");
-    g_sftCreateWorld[4].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(100, g_v2uWindowSize.y));
+    g_sftCreateWorld[4].setString("Seed:");
+    g_sftCreateWorld[4].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y));
 
     g_sftCreateWorld[5].setString("Create World");
-    g_sftCreateWorld[5].setPosition(percentage1280(700, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y));
+
+    g_sftCreateWorld[5].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y));
 
 
     g_sfrspShapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(g_v2uWindowSize.x), percentage800(65, g_v2uWindowSize.y)));
@@ -346,6 +359,20 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
     g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
 void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::string& strNameFileWorld) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
+        if (collisionMouse(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
+            g_tiInput[0].setInput(true);
+            g_tiInput[1].setInput(false);
+        } else if (collisionMouse(g_vfMousePosition, g_tiInput[1].getRectSize(), g_tiInput[1].getPositionRectangleShape())) {
+            g_tiInput[1].setInput(true);
+            g_tiInput[0].setInput(false);
+        } else {
+            g_tiInput[0].setInput(false);
+            g_tiInput[1].setInput(false);
+        }
+    }
+    g_tiInput[0].readKey(time);
+    g_tiInput[1].readKey(time);
     if (g_bReadDir) {
         sf::Vector2f pos = {50,70};
         // Укажите путь к вашей директории
@@ -404,6 +431,8 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
     for (const auto& el : g_sftCreateWorld) {
         window.draw(el);
     }
+    g_tiInput[0].draw(window);
+    g_tiInput[1].draw(window);
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     if (!g_bSettingMapCopy) {
