@@ -45,7 +45,7 @@ sf::Text g_sftSettingsGraphics[10];
 
 sf::RectangleShape g_sfrspButton_rectangle_shape[5];
 sf::RectangleShape g_sfrspSButton_shape[5];
-sf::RectangleShape g_sfrspShapeCreateWorld[2];
+sf::RectangleShape g_sfrspShapeCreateWorld[5];
 
 
 sf::ConvexShape g_sfrcpTriangle[2];
@@ -78,7 +78,6 @@ int g_iDisplaySolution[17][2] = {
 
 ktx::cInputText g_tiInput[2];
 
-
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     if (!g_sffFont.loadFromFile("Dependency/font.otf")) {
         std::cerr << "ERROR: Failed to initialize menu. Failed to load font" << std::endl;
@@ -100,6 +99,10 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_tiInput[1].setPositionText(sf::Vector2f(percentage1280(792, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
     g_tiInput[1].setPositionRectangleShape(sf::Vector2f(percentage1280(790, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
     //g_tiInput[0].setInput(true);
+
+    g_sfrspShapeCreateWorld[2].setSize(sf::Vector2f(550, 90));
+    g_sfrspShapeCreateWorld[2].setPosition(sf::Vector2f(percentage1280(685, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y)));
+    g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
 
     g_sftCreateWorldText.setFont(g_sffFont);
     g_sftCreateWorldText.setString("Create World");
@@ -273,8 +276,8 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftCreateWorld[4].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y));
 
     g_sftCreateWorld[5].setString("Create World");
-
     g_sftCreateWorld[5].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y));
+    g_sftCreateWorld[5].setFillColor(sf::Color(0,0,0));
 
 
     g_sfrspShapeCreateWorld[0].setSize(sf::Vector2f(static_cast<float>(g_v2uWindowSize.x), percentage800(65, g_v2uWindowSize.y)));
@@ -288,7 +291,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     std::cout << "INFO: menu initialized is successful" << std::endl;
 }
 
-extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time, std::string& strNameFileWorld) {
+extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map) {
 
     window.clear(sf::Color(43, 63, 114));
     g_vfMousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
@@ -345,7 +348,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         window.draw(g_sftExitText);
     }
     else if (menuStatus == 2) {
-        CreateWorld(window, menuStatus, mouseEventWheel, time, strNameFileWorld);
+        CreateWorld(window, menuStatus, mouseEventWheel, time, map);
     }
     else if (menuStatus == 3) {
         SettingLogic(window, menuStatus, settingsMap);
@@ -358,7 +361,18 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
 
     g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
-void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::string& strNameFileWorld) {
+void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && collisionMouse(g_vfMousePosition, g_sfrspShapeCreateWorld[2].getSize(), g_sfrspShapeCreateWorld[2].getPosition())) {
+        g_sfrspShapeCreateWorld[2].setFillColor(sf::Color(175, 175, 175));
+        if (g_tiInput[0].getString()[0] != '\0' && g_tiInput[0].getString()[0] != '\0') {
+            map["name"] = g_tiInput[0].getString();
+            map["seed"] = g_tiInput[1].getString();
+            menuStatus = -4;
+            // отображение надписи "не удалось создать мир"
+        }
+    } else {
+        g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
+    }
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
         if (collisionMouse(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
             g_tiInput[0].setInput(true);
@@ -391,7 +405,8 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
                 sf::Text text;
                 text.setFillColor(sf::Color::White);
                 text.setFont(g_sffFont);
-                text.setString(entry.path().filename().string());
+
+                text.setString(entry.path().filename().string().substr(0, entry.path().filename().string().rfind(".json")));
                 text.setPosition(pos);
                 pos = sf::Vector2f(pos.x, pos.y+65);
                 g_vtTextNamesFileSaves.push_back(text);
@@ -418,7 +433,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
          if (el.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
              el.setFillColor(g_sfcColorHover);
              if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
-                 strNameFileWorld = el.getString();
+                 map["name"] = el.getString();
                  menuStatus = -3;
              }
         }
@@ -433,6 +448,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
     }
     g_tiInput[0].draw(window);
     g_tiInput[1].draw(window);
+    window.draw(g_sfrspShapeCreateWorld[2]);
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     if (!g_bSettingMapCopy) {
