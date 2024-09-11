@@ -100,7 +100,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_tiInput[1].setPositionRectangleShape(sf::Vector2f(percentage1280(790, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y)));
     //g_tiInput[0].setInput(true);
 
-    g_sfrspShapeCreateWorld[2].setSize(sf::Vector2f(550, 90));
+    g_sfrspShapeCreateWorld[2].setSize(sf::Vector2f(percentage1280(550, g_v2uWindowSize.x), percentage800(90, g_v2uWindowSize.y)));
     g_sfrspShapeCreateWorld[2].setPosition(sf::Vector2f(percentage1280(685, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y)));
     g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
 
@@ -276,7 +276,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftCreateWorld[4].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(120, g_v2uWindowSize.y));
 
     g_sftCreateWorld[5].setString("Create World");
-    g_sftCreateWorld[5].setPosition(percentage1280(685, g_v2uWindowSize.x), percentage800(700, g_v2uWindowSize.y));
+    g_sftCreateWorld[5].setPosition(percentage1280(840, g_v2uWindowSize.x), percentage800(720, g_v2uWindowSize.y));
     g_sftCreateWorld[5].setFillColor(sf::Color(0,0,0));
 
 
@@ -346,6 +346,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         window.draw(g_sftSettingsText);
         window.draw(g_sftModNameText);
         window.draw(g_sftExitText);
+        g_bReadDir = true;
     }
     else if (menuStatus == 2) {
         CreateWorld(window, menuStatus, mouseEventWheel, time, map);
@@ -358,7 +359,6 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
     }
 
     window.draw(g_sftVersionApp);
-
     g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
 void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map) {
@@ -368,6 +368,8 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
             map["name"] = g_tiInput[0].getString();
             map["seed"] = g_tiInput[1].getString();
             menuStatus = -4;
+            g_tiInput[0].setString("");
+            g_tiInput[1].setString("");
             // отображение надписи "не удалось создать мир"
         }
     } else {
@@ -388,6 +390,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
     g_tiInput[0].readKey(time);
     g_tiInput[1].readKey(time);
     if (g_bReadDir) {
+        g_vtTextNamesFileSaves.clear();
         sf::Vector2f pos = {50,70};
         // Укажите путь к вашей директории
         const fs::path dir_path = "worlds/";
@@ -442,13 +445,12 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
     }
     window.draw(g_sfrspShapeCreateWorld[0]);
     window.draw(g_sfrspShapeCreateWorld[1]);
-
+    window.draw(g_sfrspShapeCreateWorld[2]);
     for (const auto& el : g_sftCreateWorld) {
         window.draw(el);
     }
     g_tiInput[0].draw(window);
     g_tiInput[1].draw(window);
-    window.draw(g_sfrspShapeCreateWorld[2]);
 }
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     if (!g_bSettingMapCopy) {
