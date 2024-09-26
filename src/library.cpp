@@ -631,4 +631,3 @@ bool collisionMouse(const sf::Vector2f& mousePosition, const sf::Vector2f shapeS
     return false;
 }
 
-
