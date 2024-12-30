@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <filesystem>
+#include <SFML/Graphics.hpp>
 #include <LibKyraText.h>
 
 namespace fs = std::filesystem;
@@ -330,16 +331,15 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
         //Exit
         if (g_sftExitText.getGlobalBounds().contains(g_vfMousePosition.x, g_vfMousePosition.y)) {
             g_sftExitText.setFillColor(g_sfcColorHover);
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && g_bExitMenu) {
-                std::cout << "INFO: Exit" << std::endl;
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                g_bExitMenu = true; // Устанавливаем флаг перед закрытием
                 window.close();
-                g_bExitMenu = false;
                 return;
             }
+        } else {
+            g_bExitMenu = false; // Сбрасываем флаг, если мышь не над кнопкой
         }
-        else {
-            g_sftExitText.setFillColor(g_sfcColorNormal);
-        }
+
 
         window.draw(g_sftGameNameText);
         window.draw(g_sftCreateWorldText);
