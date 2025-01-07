@@ -2,7 +2,6 @@
 #define MOD_MENU_H
 // old
 #include <SFML/Graphics.hpp>
-//... lib fs
 #include <map>
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window);
