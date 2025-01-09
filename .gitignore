@@ -3,6 +3,7 @@
 /cmake-build-debug
 /.cmake
 /Testing
+/Libs
 .ninja_log
 .ninja_deps
 cmake_install.cmake

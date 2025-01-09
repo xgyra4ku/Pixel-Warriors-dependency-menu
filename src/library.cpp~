@@ -77,8 +77,6 @@ int g_iDisplaySolution[17][2] = {
     {4096, 2160},   // 4096x2160 (DCI 4K)
 };
 
-
-
 fs::Text::InputText g_tiInput[2];
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
@@ -376,7 +374,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
         g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
     }
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
-        if (fs::Mouse::collision(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
+        if (collisionMouse(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
             g_tiInput[0].setInput(true);
             g_tiInput[1].setInput(false);
         } else if (collisionMouse(g_vfMousePosition, g_tiInput[1].getRectSize(), g_tiInput[1].getPositionRectangleShape())) {
