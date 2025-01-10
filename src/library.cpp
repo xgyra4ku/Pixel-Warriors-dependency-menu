@@ -80,6 +80,7 @@ int g_iDisplaySolution[17][2] = {
 
 
 fs::Text::InputText g_tiInput[2];
+fs::Mouse* g_mouse;
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     if (!g_sffFont.loadFromFile("Dependency/font.otf")) {
@@ -87,7 +88,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
         window.close();
         return;
     }
-
+    g_mouse = new fs::Mouse(window);
     g_v2uWindowSize = window.getSize();
 
     const float xText = percentage(4.69f, g_v2uWindowSize.x);
@@ -362,7 +363,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
     g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
 void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map) {
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && collisionMouse(g_vfMousePosition, g_sfrspShapeCreateWorld[2].getSize(), g_sfrspShapeCreateWorld[2].getPosition())) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && g_mouse->collision(g_sfrspShapeCreateWorld[2].getSize(), g_sfrspShapeCreateWorld[2].getPosition())) {
         g_sfrspShapeCreateWorld[2].setFillColor(sf::Color(175, 175, 175));
         if (g_tiInput[0].getString()[0] != '\0' && g_tiInput[0].getString()[0] != '\0') {
             map["name"] = g_tiInput[0].getString();
@@ -376,10 +377,10 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
         g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
     }
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
-        if (fs::Mouse::collision(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
+        if (g_mouse->collision(g_tiInput[0].getRectSize(), g_tiInput[0].getPosition())) {
             g_tiInput[0].setInput(true);
             g_tiInput[1].setInput(false);
-        } else if (collisionMouse(g_vfMousePosition, g_tiInput[1].getRectSize(), g_tiInput[1].getPositionRectangleShape())) {
+        } else if (g_mouse->collision(g_tiInput[1].getRectSize(), g_tiInput[1].getPosition())) {
             g_tiInput[1].setInput(true);
             g_tiInput[0].setInput(false);
         } else {
@@ -387,23 +388,23 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
             g_tiInput[1].setInput(false);
         }
     }
-    g_tiInput[0].readKey(time);
-    g_tiInput[1].readKey(time);
+    g_tiInput[0].listen(time);
+    g_tiInput[1].listen(time);
     if (g_bReadDir) {
         g_vtTextNamesFileSaves.clear();
         sf::Vector2f pos = {50,70};
         // Укажите путь к вашей директории
-        const fs::path dir_path = "worlds/";
+        const fsys::path dir_path = "worlds/";
 
         // Проверяем, существует ли директория
-        if (!fs::is_directory(dir_path)) {
+        if (!is_directory(dir_path)) {
             std::cerr << "INFO: There is no save world directory";
             return;
         }
         // Перебираем файлы в директории
-        for (const auto& entry : fs::directory_iterator(dir_path)) {
+        for (const auto& entry : fsys::directory_iterator(dir_path)) {
             // Проверяем, является ли запись файлом (или директорией)
-            if (fs::is_regular_file(entry.status())) {
+            if (fsys::is_regular_file(entry.status())) {
                 g_vNamesFileSaves.push_back(entry.path().filename().string());
                 sf::Text text;
                 text.setFillColor(sf::Color::White);
@@ -418,7 +419,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
         g_bReadDir = false;
     }
 
-    if (collisionMouse(g_vfMousePosition, sf::Vector2f(percentage(50.0f, g_v2uWindowSize.x), static_cast<float>(g_v2uWindowSize.y)), sf::Vector2f(0,0))) {
+    if (g_mouse->collision(sf::Vector2f(percentage(50.0f, g_v2uWindowSize.x), static_cast<float>(g_v2uWindowSize.y)), sf::Vector2f(0,0))) {
         if (mouseEventWheel > 0) {
             for (auto& el : g_vtTextNamesFileSaves) {
                 sf::Vector2f posEl = el.getPosition();
@@ -502,37 +503,37 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
     }
     if (g_iSettingsStatus == 0) {
 
-        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[0].getSize(), g_sfrspButton_rectangle_shape[0].getPosition())) {
+        if (g_mouse->collision(g_sfrspButton_rectangle_shape[0].getSize(), g_sfrspButton_rectangle_shape[0].getPosition())) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
                 g_mSettings_map_copy_map["fullscreen"] = !g_mSettings_map_copy_map["fullscreen"];
             }
         }
-        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[1].getSize(), g_sfrspButton_rectangle_shape[1].getPosition())) {
+        if (g_mouse->collision(g_sfrspButton_rectangle_shape[1].getSize(), g_sfrspButton_rectangle_shape[1].getPosition())) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
                 g_mSettings_map_copy_map["V-sync"] = !g_mSettings_map_copy_map["V-sync"];
                 g_mSettings_map_copy_map["fps"] = 0;
             }
         }
-        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[2].getSize(), g_sfrspButton_rectangle_shape[2].getPosition())) {
+        if (g_mouse->collision(g_sfrspButton_rectangle_shape[2].getSize(), g_sfrspButton_rectangle_shape[2].getPosition())) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
                 g_mSettings_map_copy_map["fps"] = 60;
                 g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
-        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[3].getSize(), g_sfrspButton_rectangle_shape[3].getPosition())) {
+        if (g_mouse->collision(g_sfrspButton_rectangle_shape[3].getSize(), g_sfrspButton_rectangle_shape[3].getPosition())) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
                 g_mSettings_map_copy_map["fps"] = 120;
                 g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
-        if (collisionMouse(g_vfMousePosition, g_sfrspButton_rectangle_shape[4].getSize(), g_sfrspButton_rectangle_shape[4].getPosition())) {
+        if (g_mouse->collision(g_sfrspButton_rectangle_shape[4].getSize(), g_sfrspButton_rectangle_shape[4].getPosition())) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
                 g_mSettings_map_copy_map["fps"] = -1;
                 g_mSettings_map_copy_map["V-sync"] = 0;
             }
         }
 
-        if (collisionMouse(g_vfMousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(85.94f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
+        if (g_mouse->collision(sf::Vector2f(15,15), sf::Vector2f(percentage(85.94f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
 
                 if (g_iDisplaySolutionIndex >= 16) {
@@ -545,7 +546,7 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
             }
         }
 
-        if (collisionMouse(g_vfMousePosition, sf::Vector2f(15,15), sf::Vector2f(percentage(66.25f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
+        if (g_mouse->collision(sf::Vector2f(15,15), sf::Vector2f(percentage(66.25f, g_v2uWindowSize.x), percentage(38.75f, g_v2uWindowSize.y)))) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
 
                 if (g_iDisplaySolutionIndex <= 0) {

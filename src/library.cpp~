@@ -77,7 +77,10 @@ int g_iDisplaySolution[17][2] = {
     {4096, 2160},   // 4096x2160 (DCI 4K)
 };
 
+
+
 fs::Text::InputText g_tiInput[2];
+fs::Mouse* g_mouse;
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     if (!g_sffFont.loadFromFile("Dependency/font.otf")) {
@@ -85,7 +88,7 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
         window.close();
         return;
     }
-
+    g_mouse = new fs::Mouse(window);
     g_v2uWindowSize = window.getSize();
 
     const float xText = percentage(4.69f, g_v2uWindowSize.x);
@@ -360,7 +363,7 @@ extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& men
     g_bButtonMouseLeft = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 }
 void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map) {
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && collisionMouse(g_vfMousePosition, g_sfrspShapeCreateWorld[2].getSize(), g_sfrspShapeCreateWorld[2].getPosition())) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && g_mouse->collision(g_sfrspShapeCreateWorld[2].getSize(), g_sfrspShapeCreateWorld[2].getPosition())) {
         g_sfrspShapeCreateWorld[2].setFillColor(sf::Color(175, 175, 175));
         if (g_tiInput[0].getString()[0] != '\0' && g_tiInput[0].getString()[0] != '\0') {
             map["name"] = g_tiInput[0].getString();
@@ -374,10 +377,10 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
         g_sfrspShapeCreateWorld[2].setFillColor(sf::Color::White);
     }
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !g_bButtonMouseLeft) {
-        if (collisionMouse(g_vfMousePosition, g_tiInput[0].getRectSize(), g_tiInput[0].getPositionRectangleShape())) {
+        if (g_mouse->collision(g_tiInput[0].getRectSize(), g_tiInput[0].getPosition())) {
             g_tiInput[0].setInput(true);
             g_tiInput[1].setInput(false);
-        } else if (collisionMouse(g_vfMousePosition, g_tiInput[1].getRectSize(), g_tiInput[1].getPositionRectangleShape())) {
+        } else if (g_mouse->collision(g_tiInput[1].getRectSize(), g_tiInput[1].getPosition())) {
             g_tiInput[1].setInput(true);
             g_tiInput[0].setInput(false);
         } else {
@@ -385,7 +388,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
             g_tiInput[1].setInput(false);
         }
     }
-    g_tiInput[0].readKey(time);
+    g_tiInput[0].listen(time);
     g_tiInput[1].readKey(time);
     if (g_bReadDir) {
         g_vtTextNamesFileSaves.clear();
