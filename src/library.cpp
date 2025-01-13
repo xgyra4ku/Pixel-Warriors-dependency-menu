@@ -91,14 +91,15 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
         window.close();
         return;
     }
+    g_v2uWindowSize = window.getSize();
     g_mouse = new fs::Mouse(window);
     g_sliderFPS = new fs::UI::Slider(window);
     g_sliderFPS->setSize({600, 35});
-    g_sliderFPS->setPosition({300, 300});
-    g_sliderFPS->setOption(5);
+    g_sliderFPS->setPosition({percentage(23.44f, g_v2uWindowSize.x), percentage(50.0f, g_v2uWindowSize.y)});
+    g_sliderFPS->setOption(250);
     g_sliderFPS->setHoverColor(sf::Color(70, 70, 70));
 
-    g_v2uWindowSize = window.getSize();
+
 
     const float xText = percentage(4.69f, g_v2uWindowSize.x);
 
@@ -175,24 +176,19 @@ extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {
     g_sftSettingsGraphics[0].setPosition(percentage(23.44f, g_v2uWindowSize.x), percentage(37.5f, g_v2uWindowSize.y));  // X=300/1280=23.44%
 
 
-    g_sftFpsSettings[0].setString("Fullscreen:");
 
-    g_sftFpsSettings[1].setString("Fps:");
+    g_sftFpsSettings[0].setString("0");
 
-    g_sftFpsSettings[2].setString("60");
+    g_sftFpsSettings[1].setString("Max");
 
-    g_sftFpsSettings[3].setString("120");
-
-    g_sftFpsSettings[4].setString("Max");
-
-    g_sftFpsSettings[5].setString("V-sync");
+    g_sftFpsSettings[2].setString("V-sync");
 
 
     for (auto& el : g_sftFpsSettings) {
         el.setFont(g_sffFont);
         el.setCharacterSize(textSizeOptimization(g_v2uWindowSize, 30.0f));
         el.setFillColor(sf::Color::White);
-        el.setPosition({400, 800});
+        el.setPosition({percentage(68.75f, g_v2uWindowSize.x), percentage(50.0f, g_v2uWindowSize.y)});
     }
 
     g_sftSettingsGraphics[7].setPosition(percentage(68.75f, g_v2uWindowSize.x), percentage(37.5f, g_v2uWindowSize.y));  // X=880/1280=68.75%
@@ -467,6 +463,7 @@ void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEven
 void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap) {
     g_sliderFPS->logic();
     if (!g_bSettingMapCopy) {
+        g_sliderFPS->setStatus(settingsMap["fps"]);
         g_mSettings_map_copy_map = settingsMap;
         g_bSettingMapCopy = true;
     }
@@ -509,6 +506,7 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
             menuStatus = -2;
             g_mSettings_map_copy_map["windowWidth"] = g_iDisplaySolution[g_iDisplaySolutionIndex][0];
             g_mSettings_map_copy_map["windowHeight"] = g_iDisplaySolution[g_iDisplaySolutionIndex][1];
+            g_mSettings_map_copy_map["fps"] = g_sliderFPS->getStatus();
             settingsMap = g_mSettings_map_copy_map;
             g_bSettingMapCopy = false;
         }
@@ -576,30 +574,15 @@ void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::strin
             window.draw(el);
         }
         g_sliderFPS->draw();
-        // for (const auto &el : g_sfrspButton_rectangle_shape) {
-        //     window.draw(el);
-        // }
-        //
-        // if (g_mSettings_map_copy_map["fullscreen"] == 1) {
-        //     window.draw(g_sfrspSButton_shape[0]);
-        // }
-        // if (g_mSettings_map_copy_map["V-sync"] == 1) {
-        //     window.draw(g_sfrspSButton_shape[1]);
-        // } else {
-        //      switch (g_mSettings_map_copy_map["fps"]) {
-        //     case -1:
-        //         window.draw(g_sfrspSButton_shape[4]);
-        //          break;
-        //     case 60:
-        //         window.draw(g_sfrspSButton_shape[2]);
-        //          break;
-        //     case 120:
-        //         window.draw(g_sfrspSButton_shape[3]);
-        //          break;
-        //     default:
-        //          break;
-        //     }
-        // }
+        if (g_sliderFPS->getStatus() == 0) {
+            window.draw(g_sftFpsSettings[2]);
+        } else if (g_sliderFPS->getStatus() == 250) {
+            window.draw(g_sftFpsSettings[1]);
+        } else {
+            g_sftFpsSettings[0].setString(std::to_string(g_sliderFPS->getStatus()));
+            window.draw(g_sftFpsSettings[0]);
+        }
+
         window.draw(g_sfrcpTriangle[0]);
         window.draw(g_sfrcpTriangle[1]);
         //std::cout << "Display solution index: "<< displaySolutionIndex << std::endl;
