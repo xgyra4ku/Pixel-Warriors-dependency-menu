@@ -30,10 +30,10 @@ std::vector<sf::Text> g_vtTextNamesFileSaves;
 
 sf::Font g_sffFont;
 sf::Text g_sftGameNameText;
-// sf::Text g_sftCreateWorldText;
-// sf::Text g_sftSettingsText;
-// sf::Text g_sftExitText;
-// sf::Text g_sftModNameText;
+sf::Text g_sftCreateWorldText;
+sf::Text g_sftSettingsText;
+sf::Text g_sftExitText;
+sf::Text g_sftModNameText;
 sf::Text g_sftVersionApp;
 
 
@@ -85,8 +85,7 @@ fs::UI::Slider* g_sliderFPS; //обьект слайдера
 
 sf::Text g_sftFpsSettings[3]; //текст слайдера fps
 
-sf::Text g_sftMainText[4]; //текст главного меню
-
+sf::Text g_sftMainText[4];
 
 
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window) {

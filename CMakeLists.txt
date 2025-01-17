@@ -21,7 +21,9 @@ file(GLOB_RECURSE HEADERS ${INCLUDE_DIR}/*.hpp)
 
 # Включите заголовочные файлы в проект для удобства IDE
 add_library(mod-menu SHARED ${SOURCES} ${HEADERS}
-        include/library.h)
+        include/library.h
+        src/cMain.cpp
+        include/cMain.hpp)
 
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/SFML)
 

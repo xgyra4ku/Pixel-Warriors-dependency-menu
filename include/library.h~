@@ -8,7 +8,7 @@
 extern "C" __declspec(dllexport) void initLib(sf::RenderWindow& window);
 extern "C" __declspec(dllexport) void menuLib(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map);
 
-void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap,const float& time);
+void SettingLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, int>& settingsMap, float time);
 void CreateWorld(sf::RenderWindow& window, int& menuStatus, const int& mouseEventWheel, const float& time, std::map<std::string, std::string>& map);
 void ModsLogic(sf::RenderWindow& window, int& menuStatus, std::map<std::string, std::string>& ModsMap);
 float percentage(float percent, unsigned int num);
